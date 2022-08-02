@@ -5,7 +5,7 @@ import {pick} from "next/dist/lib/pick";
 import {Character} from "../../../../../data/character";
 import {CharacterResponse} from "../../../../../data/api/characterResponse";
 
-const characterFields: (keyof Character)[]= ["name", "sname", "age"];
+const characterFields: (keyof Character)[]= ["name", "sname", "age", "gender"];
 
 function pickCharacterData(character: Character) {
   return pick(character, characterFields);

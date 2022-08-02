@@ -1,10 +1,13 @@
-import React from "react";
+import React, {useEffect} from "react";
 import WorldLocationComponent from "./WorldLocationComponent";
 import {worldPage} from "../models/World";
 import {observer} from "mobx-react-lite";
 import {CharacterComponent} from "./CharacterComponent";
 
 function WorldComponent() {
+  useEffect(() => {
+    worldPage.init();
+  }, []);
   return <div style={{display: "flex"}}>
     <div>
       <ul>
