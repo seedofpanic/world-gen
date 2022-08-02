@@ -1,13 +1,15 @@
-import {makeAutoObservable, reaction} from "mobx";
-import {WorldLocation} from "../../data/world";
+import {autorun, makeAutoObservable, reaction} from "mobx";
 import {apiGet} from "../../data/api";
 import {Character} from "../../data/character";
+import {WorldLocation} from "../../data/worldLocation";
 
 export class WorldPage {
   locations?: WorldLocation[];
-  selectedLocationId?: string;
+  selectedLocationId: string | null = null;
   location?: WorldLocation;
   characters?: Character[];
+  selectedCharacterId: string | null = null;
+  character: Character | null = null;
 
   constructor() {
     makeAutoObservable(this);
@@ -15,6 +17,12 @@ export class WorldPage {
     reaction(() => this.selectedLocationId, selectedLocationId => {
       apiGet("locations/" + selectedLocationId).then(data => this.setLocation(data));
       apiGet("locations/" + selectedLocationId + "/characters").then(data => this.setCharacters(data));
+    });
+
+    autorun(() => {
+      if (this.selectedLocationId && this.selectedCharacterId) {
+        apiGet("locations/" + this.selectedLocationId + "/characters/" + this.selectedCharacterId).then(data => this.setCharacter(data));
+      }
     });
   }
 
@@ -28,6 +36,7 @@ export class WorldPage {
 
   setSelectedLocationId(id: string) {
     this.selectedLocationId = id;
+    this.selectedCharacterId = null
   }
 
   private setLocation(data: WorldLocation) {
@@ -36,6 +45,14 @@ export class WorldPage {
 
   private setCharacters(data: Character[]) {
     this.characters = data;
+  }
+
+  setCharacter(character: Character) {
+    this.character = character;
+  }
+
+  setSelectedCharacterId(id: string) {
+    this.selectedCharacterId = id;
   }
 }
 

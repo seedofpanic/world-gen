@@ -2,6 +2,7 @@ import React from "react";
 import WorldLocationComponent from "./WorldLocationComponent";
 import {worldPage} from "../models/World";
 import {observer} from "mobx-react-lite";
+import {CharacterComponent} from "./CharacterComponent";
 
 function WorldComponent() {
   return <div style={{display: "flex"}}>
@@ -13,6 +14,9 @@ function WorldComponent() {
     </div>
     <div>
       {worldPage.selectedLocationId ? <WorldLocationComponent/> : null}
+    </div>
+    <div>
+      <CharacterComponent character={worldPage.character}/>
     </div>
   </div>
 }

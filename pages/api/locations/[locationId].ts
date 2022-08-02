@@ -1,7 +1,8 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next'
-import {world, WorldLocation} from "../../../data/world";
+import {world} from "../../../data/world";
 import {pick} from "next/dist/lib/pick";
+import {WorldLocation} from "../../../data/worldLocation";
 
 export default function handler(
   req: NextApiRequest,

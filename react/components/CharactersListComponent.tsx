@@ -4,7 +4,7 @@ import {observer} from "mobx-react-lite";
 
 function CharactersListComponent() {
   return <ul>
-    {worldPage.characters?.map(character => <li key={character.id}>{character.gender} {character.name}</li>)}
+    {worldPage.characters?.map(character => <li onClick={() => worldPage.setSelectedCharacterId(character.id)} key={character.id}>{character.gender} {character.name} {character.sname}</li>)}
   </ul>
 }
 

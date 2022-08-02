@@ -1,3 +1,6 @@
+import {getRandom} from "./getRandom";
+import {world} from "./world";
+
 const humanSNames = [
   "Nuko",
   "Pahem",
@@ -73,10 +76,6 @@ const humanNames = {
 
 let nextId = 1;
 
-function getRandom(max: number) {
-  return Math.floor(Math.random() * max);
-}
-
 export class Character {
   id = (nextId++).toString();
   name: string;
@@ -84,12 +83,38 @@ export class Character {
   gender: "M" | "F";
   partnerId?: string;
   age: number;
+  children: Character[] = [];
 
   constructor({gender, partnerId, ageMin, ageMax}: {gender?: Character["gender"], partnerId?: Character["partnerId"], ageMin?: number, ageMax?: number}) {
-    this.gender = gender || getRandom(2) === 0 ? "F" : "M";
+    this.gender = gender || (getRandom(2) === 0 ? "F" : "M");
     this.name = humanNames[this.gender][getRandom(humanNames[this.gender].length)];
     this.sname = humanSNames[getRandom(humanSNames.length)];
     this.partnerId = partnerId;
     this.age = getRandom(ageMax || 120) + (ageMin || 0);
+  }
+
+  merry(partner: Character) {
+    this.partnerId = partner.id;
+    partner.partnerId = this.id;
+
+    if (partner.gender === "F") {
+      partner.sname = this.sname;
+    }
+
+    if (this.gender === "F") {
+      this.sname = partner.sname;
+    }
+  }
+
+  addChild() {
+    const child = new Character({ageMax: 0});
+
+    this.children.push(child);
+
+    if (this.partnerId) {
+      world.characters[this.partnerId].children.push(child)
+    }
+
+    return child;
   }
 }
