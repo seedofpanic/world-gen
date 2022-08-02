@@ -2,6 +2,7 @@ import {autorun, makeAutoObservable, reaction} from "mobx";
 import {apiGet} from "../../data/api";
 import {Character} from "../../data/character";
 import {WorldLocation} from "../../data/worldLocation";
+import {CharacterResponse} from "../../data/api/characterResponse";
 
 export class WorldPage {
   locations?: WorldLocation[];
@@ -9,7 +10,7 @@ export class WorldPage {
   location?: WorldLocation;
   characters?: Character[];
   selectedCharacterId: string | null = null;
-  character: Character | null = null;
+  characterPage: CharacterResponse | null = null;
 
   constructor() {
     makeAutoObservable(this);
@@ -47,8 +48,8 @@ export class WorldPage {
     this.characters = data;
   }
 
-  setCharacter(character: Character) {
-    this.character = character;
+  setCharacter(characterPage: CharacterResponse) {
+    this.characterPage = characterPage;
   }
 
   setSelectedCharacterId(id: string) {

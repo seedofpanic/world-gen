@@ -1,15 +1,23 @@
 import React from "react";
-import {Character} from "../../data/character";
+import {observer} from "mobx-react-lite";
+import {CharacterResponse} from "../../data/api/characterResponse";
 
 interface CharacterComponentProps {
-  character: Character & {partner: Character, children: Character[]};
+  data: CharacterResponse;
 }
 
-export function CharacterComponent({character}: CharacterComponentProps) {
+export function CharacterComponent({data}: CharacterComponentProps) {
+  const {character, partner, children} = data;
+
   return <>
-    <h1>{character?.name}</h1>
+    <h1>{character.name}</h1>
     <div>Age: {character.age}</div>
     <div>Gender: {character.gender}</div>
-    <div>Partner: {character.partner.name}</div>
+    <div>Partner: {partner ? partner.name : "no"}</div>
+    <ul>
+      {children.map(child => <li key={child.id}>{child.name}</li>)}
+    </ul>
   </>;
 }
+
+export default observer(CharacterComponent);

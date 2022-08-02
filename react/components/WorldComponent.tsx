@@ -16,7 +16,9 @@ function WorldComponent() {
       {worldPage.selectedLocationId ? <WorldLocationComponent/> : null}
     </div>
     <div>
-      <CharacterComponent character={worldPage.character}/>
+      {worldPage.characterPage ?
+        <CharacterComponent data={worldPage.characterPage}/>
+        : null}
     </div>
   </div>
 }
