@@ -20,14 +20,16 @@ export class WorldLocation {
       const f = new Character({gender: "F", ageMin: 20, ageMax: 50});
       const m = new Character({gender: "M", ageMin: 20, ageMax: 50});
 
-      f.partnerId = m.id;
-      m.partnerId = f.id;
-
       world.characters[f.id] = f;
       world.characters[m.id] = m;
 
       this.characters.push(f);
       this.characters.push(m);
+
+      f.merry(m);
+
+      const child = f.addChild();
+      this.characters.push(child);
     }
   }
 

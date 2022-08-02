@@ -22,6 +22,6 @@ export default function handler(
     .json({
       character: pickCharacterData(character),
       partner: character.partnerId ? pickCharacterData(world.characters[character.partnerId]) : null,
-      children: character.children.map(pickCharacterData)
+      children: character.children.map(childId => pickCharacterData(world.characters[childId]))
     });
 }

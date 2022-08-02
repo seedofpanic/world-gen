@@ -1,6 +1,10 @@
 import {WorldLocation} from "./worldLocation";
 import {Character} from "./character";
 
+declare const global: {
+  world: World;
+};
+
 class World {
   locations: {[name: string]: WorldLocation} = {};
   characters: {[name: string]: Character} = {};
@@ -18,6 +22,12 @@ class World {
   }
 }
 
-export const world = new World();
+if (!global.world) {
+  global.world = new World();
 
-world.init();
+  setTimeout(() => {
+    global.world.init();
+  });
+}
+
+export const world = global.world;

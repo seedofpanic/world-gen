@@ -83,14 +83,15 @@ export class Character {
   gender: "M" | "F";
   partnerId?: string;
   age: number;
-  children: Character[] = [];
+  children: string[] = [];
+  parents: string[] = [];
 
   constructor({gender, partnerId, ageMin, ageMax}: {gender?: Character["gender"], partnerId?: Character["partnerId"], ageMin?: number, ageMax?: number}) {
     this.gender = gender || (getRandom(2) === 0 ? "F" : "M");
     this.name = humanNames[this.gender][getRandom(humanNames[this.gender].length)];
     this.sname = humanSNames[getRandom(humanSNames.length)];
     this.partnerId = partnerId;
-    this.age = getRandom(ageMax || 120) + (ageMin || 0);
+    this.age = getRandom(ageMax === undefined ? 120 : ageMax) + (ageMin || 0);
   }
 
   merry(partner: Character) {
@@ -109,11 +110,15 @@ export class Character {
   addChild() {
     const child = new Character({ageMax: 0});
 
-    this.children.push(child);
+    this.children.push(child.id);
+    child.parents.push(this.id);
 
     if (this.partnerId) {
-      world.characters[this.partnerId].children.push(child)
+      world.characters[this.partnerId].children.push(child.id);
+      child.parents.push(this.partnerId);
     }
+
+    world.characters[child.id] = child;
 
     return child;
   }
