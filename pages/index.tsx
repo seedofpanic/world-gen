@@ -4,7 +4,7 @@ import { configure } from "mobx"
 import WorldComponent from "../react/components/WorldComponent";
 import {worldPage} from "../react/models/World";
 
-configure({ useProxies: "never" });
+configure({ useProxies: "ifavailable" });
 
 const Home: NextPage = () => {
   worldPage.init();
