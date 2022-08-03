@@ -1,5 +1,6 @@
 import {getRandom} from "./getRandom";
 import {world} from "./world";
+import {number} from "prop-types";
 
 const humanSNames = [
   "Nuko",
@@ -91,7 +92,8 @@ export class Character {
     this.name = humanNames[this.gender][getRandom(humanNames[this.gender].length)];
     this.sname = humanSNames[getRandom(humanSNames.length)];
     this.partnerId = partnerId;
-    this.age = getRandom(ageMax === undefined ? 120 : ageMax) + (ageMin || 0);
+    this.age = getRandom(ageMax === undefined ? 120 : (ageMax - (ageMin || 0)) + (ageMin || 0));
+
   }
 
   merry(partner: Character) {
@@ -108,7 +110,14 @@ export class Character {
   }
 
   addChild() {
-    const child = new Character({ageMax: 0});
+
+    let ageYoungerParent = this.age
+
+    if (this.partnerId) {
+      ageYoungerParent = Math.min(this.age, world.characters[this.partnerId].age)
+    }
+
+    const child = new Character({ageMax: ageYoungerParent - 17});
 
     this.children.push(child.id);
     child.parents.push(this.id);
@@ -116,6 +125,7 @@ export class Character {
     if (this.partnerId) {
       world.characters[this.partnerId].children.push(child.id);
       child.parents.push(this.partnerId);
+      child.sname = world.characters[this.partnerId].sname
     }
 
     world.characters[child.id] = child;
