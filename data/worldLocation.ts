@@ -62,7 +62,7 @@ export class WorldLocation {
       }
 
       if (character.partnerId && getRandom(character.age / 10)) {
-        const child = character.addChild();
+        const child = character.addChild(0);
 
         world.characters[child.id] = child;
         this.characters.push(child);

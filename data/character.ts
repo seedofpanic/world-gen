@@ -93,7 +93,7 @@ export class Character {
     this.name = humanNames[this.gender][getRandom(humanNames[this.gender].length)];
     this.sname = humanSNames[getRandom(humanSNames.length)];
     this.partnerId = partnerId;
-    this.age = getRandom(ageMax === undefined ? 120 : (ageMax - (ageMin || 0)) + (ageMin || 0));
+    this.age = getRandom(ageMax === undefined ? 120 : (ageMax - (ageMin || 0))) + (ageMin || 0);
 
   }
 
@@ -110,7 +110,7 @@ export class Character {
     }
   }
 
-  addChild() {
+  addChild(maxAge?: number) {
 
     let ageYoungerParent = this.age;
 
@@ -118,7 +118,7 @@ export class Character {
       ageYoungerParent = Math.min(this.age, world.characters[this.partnerId].age)
     }
 
-    const child = new Character({ageMax: ageYoungerParent - 17});
+    const child = new Character({ageMax: maxAge === undefined ? (ageYoungerParent - 17) : maxAge });
 
     this.children.push(child.id);
     child.parents.push(this.id);
