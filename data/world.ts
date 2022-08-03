@@ -8,17 +8,30 @@ declare const global: {
 class World {
   locations: {[name: string]: WorldLocation} = {};
   characters: {[name: string]: Character} = {};
+  graveyard: WorldLocation | null = null;
 
   constructor() {
   }
 
   init() {
-    const location = new WorldLocation();
-    this.locations[location.id] = location;
+    const agnir = new WorldLocation("Agnir");
+    this.locations[agnir.id] = agnir;
+    agnir.generateCharacters();
+
+    const graveyard = new WorldLocation("Graveyard");
+    this.locations[graveyard.id] = graveyard;
+
+    this.graveyard = graveyard;
   }
 
   tick() {
-    Object.values(this.locations).forEach(location => location.tick())
+    Object.values(this.locations).forEach(location => {
+      const result = location.tick();
+
+      result.deadCharacters.forEach((character) => {
+        this.graveyard?.characters.push(character);
+      });
+    })
   }
 }
 

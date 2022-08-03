@@ -86,6 +86,7 @@ export class Character {
   age: number;
   children: string[] = [];
   parents: string[] = [];
+  isDead = false;
 
   constructor({gender, partnerId, ageMin, ageMax}: {gender?: Character["gender"], partnerId?: Character["partnerId"], ageMin?: number, ageMax?: number}) {
     this.gender = gender || (getRandom(2) === 0 ? "F" : "M");
@@ -111,7 +112,7 @@ export class Character {
 
   addChild() {
 
-    let ageYoungerParent = this.age
+    let ageYoungerParent = this.age;
 
     if (this.partnerId) {
       ageYoungerParent = Math.min(this.age, world.characters[this.partnerId].age)

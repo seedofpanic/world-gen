@@ -4,7 +4,7 @@ import {world} from "./world";
 
 let nextId = 1;
 interface TickResult {
-  children?: Character[]
+  deadCharacters: Character[];
 }
 
 export class WorldLocation {
@@ -13,9 +13,11 @@ export class WorldLocation {
   name: string;
   characters: Character[] = [];
 
-  constructor() {
-    this.name = "Agnir";
+  constructor(name: string) {
+    this.name = name;
+  }
 
+  generateCharacters() {
     for (let i = 0; i < 5; i++) {
       const f = new Character({gender: "F", ageMin: 20, ageMax: 50});
       const m = new Character({gender: "M", ageMin: 20, ageMax: 50});
@@ -35,21 +37,40 @@ export class WorldLocation {
 
   tick() {
     const characters = Object.values(this.characters);
-    const result: TickResult = {};
+    const result: TickResult = {deadCharacters: []};
+
     characters.forEach(character => {
+      if (character.isDead) {
+        return;
+      }
+
+      if (getRandom(120 - character.age) < 1) {
+        character.isDead = true;
+        result.deadCharacters.push(character);
+
+        return;
+      }
+
+      character.age++;
+
       if (!character.partnerId && getRandom(100 - character.age) === 0) {
         const partner = characters.find(possiblePartner => !possiblePartner.partnerId && possiblePartner.id !== character.id);
 
         if (partner) {
           character.merry(partner);
         }
+      }
 
-        if (character.partnerId && getRandom(character.age / 10)) {
-          const child = character.addChild();
+      if (character.partnerId && getRandom(character.age / 10)) {
+        const child = character.addChild();
 
-          result.children = [child];
-        }
+        world.characters[child.id] = child;
+        this.characters.push(child);
       }
     });
+
+    this.characters = this.characters.filter(character => !result.deadCharacters.some(char => char.id === character.id));
+
+    return result;
   }
 }

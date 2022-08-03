@@ -1,8 +1,10 @@
-import {autorun, makeAutoObservable, reaction} from "mobx";
-import {apiGet} from "../../data/api";
+import {autorun, IReactionDisposer, makeAutoObservable, reaction} from "mobx";
+import {apiGet, apiPost} from "../../data/api";
 import {Character} from "../../data/character";
 import {WorldLocation} from "../../data/worldLocation";
 import {CharacterResponse} from "../../data/api/characterResponse";
+
+const reactionsDisposers: IReactionDisposer[] = [];
 
 export class WorldPage {
   locations?: WorldLocation[];
@@ -15,20 +17,31 @@ export class WorldPage {
   constructor() {
     makeAutoObservable(this);
 
-    reaction(() => this.selectedLocationId, selectedLocationId => {
-      apiGet("locations/" + selectedLocationId).then(data => this.setLocation(data));
-      apiGet("locations/" + selectedLocationId + "/characters").then(data => this.setCharacters(data));
-    });
+    this.refreshReactions();
+  }
 
-    autorun(() => {
-      if (this.selectedLocationId && this.selectedCharacterId) {
-        apiGet("locations/" + this.selectedLocationId + "/characters/" + this.selectedCharacterId).then(data => this.setCharacter(data));
+  refreshReactions() {
+    reactionsDisposers.forEach(disposer => disposer());
+    reactionsDisposers.length = 0;
+
+    reactionsDisposers.push(reaction(() => this.selectedLocationId, selectedLocationId => {
+      if (!selectedLocationId) {
+        return;
       }
-    });
+
+      apiGet<WorldLocation>("locations/" + selectedLocationId).then(data => this.setLocation(data));
+      apiGet<Character[]>("locations/" + selectedLocationId + "/characters").then(data => this.setCharacters(data));
+    }, {fireImmediately: true}));
+
+    reactionsDisposers.push(autorun(() => {
+      if (this.selectedLocationId && this.selectedCharacterId) {
+        apiGet<CharacterResponse>("locations/" + this.selectedLocationId + "/characters/" + this.selectedCharacterId).then(data => this.setCharacter(data));
+      }
+    }));
   }
 
   init() {
-    apiGet("locations").then(data => this.setLocations(data));
+    apiGet<WorldLocation[]>("locations").then(data => this.setLocations(data));
   }
 
   setLocations(locations: WorldLocation[]) {
@@ -37,7 +50,7 @@ export class WorldPage {
 
   setSelectedLocationId(id: string) {
     this.selectedLocationId = id;
-    this.selectedCharacterId = null
+    this.setSelectedCharacterId(null);
   }
 
   private setLocation(data: WorldLocation) {
@@ -52,8 +65,16 @@ export class WorldPage {
     this.characterPage = characterPage;
   }
 
-  setSelectedCharacterId(id: string) {
+  setSelectedCharacterId(id: string | null) {
     this.selectedCharacterId = id;
+
+    if (id === null) {
+      this.characterPage = null;
+    }
+  }
+
+  tick() {
+    apiPost('iteration').then(() => this.refreshReactions());
   }
 }
 

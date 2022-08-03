@@ -8,22 +8,27 @@ function WorldComponent() {
   useEffect(() => {
     worldPage.init();
   }, []);
-  return <div style={{display: "flex"}}>
+  return <>
     <div>
-      <ul>
-        {worldPage.locations ? worldPage.locations.map(location => <li key={location.id}
-          onClick={() => worldPage.setSelectedLocationId(location.id)}>{location.name}</li>) : null}
-      </ul>
+      <button onClick={() => worldPage.tick()}>Evaluate</button>
     </div>
-    <div>
-      {worldPage.selectedLocationId ? <WorldLocationComponent/> : null}
+    <div style={{display: "flex"}}>
+      <div>
+        <ul>
+          {worldPage.locations ? worldPage.locations.map(location => <li key={location.id}
+                                                                         onClick={() => worldPage.setSelectedLocationId(location.id)}>{location.name}</li>) : null}
+        </ul>
+      </div>
+      <div>
+        {worldPage.selectedLocationId ? <WorldLocationComponent/> : null}
+      </div>
+      <div>
+        {worldPage.characterPage ?
+          <CharacterComponent data={worldPage.characterPage}/>
+          : null}
+      </div>
     </div>
-    <div>
-      {worldPage.characterPage ?
-        <CharacterComponent data={worldPage.characterPage}/>
-        : null}
-    </div>
-  </div>
+  </>
 }
 
 export default observer(WorldComponent);
