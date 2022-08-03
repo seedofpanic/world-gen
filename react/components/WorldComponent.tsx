@@ -3,6 +3,7 @@ import WorldLocationComponent from "./WorldLocationComponent";
 import {worldPage} from "../models/World";
 import {observer} from "mobx-react-lite";
 import {CharacterComponent} from "./CharacterComponent";
+import {format} from "date-fns";
 
 function WorldComponent() {
   useEffect(() => {
@@ -10,7 +11,7 @@ function WorldComponent() {
   }, []);
   return <>
     <div>
-      <button onClick={() => worldPage.tick()}>Evaluate</button>
+      {worldPage.year} <button onClick={() => worldPage.tick()}>Evaluate</button>
     </div>
     <div style={{display: "flex"}}>
       <div>

@@ -13,16 +13,18 @@ export class WorldPage {
   characters?: Character[];
   selectedCharacterId: string | null = null;
   characterPage: CharacterResponse | null = null;
+  year = 0;
 
   constructor() {
     makeAutoObservable(this);
-
-    this.refreshReactions();
   }
 
   refreshReactions() {
     reactionsDisposers.forEach(disposer => disposer());
     reactionsDisposers.length = 0;
+
+    apiGet<number>("world").then((data) => {this.setYear(data)});
+    apiGet<WorldLocation[]>("locations").then(data => this.setLocations(data));
 
     reactionsDisposers.push(reaction(() => this.selectedLocationId, selectedLocationId => {
       if (!selectedLocationId) {
@@ -41,7 +43,11 @@ export class WorldPage {
   }
 
   init() {
-    apiGet<WorldLocation[]>("locations").then(data => this.setLocations(data));
+    this.refreshReactions();
+  }
+
+  setYear(year: number) {
+    this.year = year;
   }
 
   setLocations(locations: WorldLocation[]) {

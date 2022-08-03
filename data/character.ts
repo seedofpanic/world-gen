@@ -1,6 +1,5 @@
 import {getRandom} from "./getRandom";
-import {world} from "./world";
-import {number} from "prop-types";
+import {world} from "./db";
 
 const humanSNames = [
   "Nuko",
@@ -37,7 +36,7 @@ const humanSNames = [
   "Jecergor"
 ];
 
-const humanNames = {
+const humanNames: { [name: string]: string[] } = {
   "F": [
     "Meruhruh",
     "Feisah",
@@ -75,62 +74,92 @@ const humanNames = {
   ]
 };
 
-let nextId = 1;
+export interface LogEvent {
+  year: number,
+  message: string
+}
 
-export class Character {
-  id = (nextId++).toString();
+export interface Character {
+  id: string;
   name: string;
   sname: string;
   gender: "M" | "F";
   partnerId?: string;
   age: number;
-  children: string[] = [];
-  parents: string[] = [];
-  isDead = false;
+  children: string[];
+  parents: string[];
+  isDead: boolean;
+  log: LogEvent[];
+}
 
-  constructor({gender, partnerId, ageMin, ageMax}: {gender?: Character["gender"], partnerId?: Character["partnerId"], ageMin?: number, ageMax?: number}) {
-    this.gender = gender || (getRandom(2) === 0 ? "F" : "M");
-    this.name = humanNames[this.gender][getRandom(humanNames[this.gender].length)];
-    this.sname = humanSNames[getRandom(humanSNames.length)];
-    this.partnerId = partnerId;
-    this.age = getRandom(ageMax === undefined ? 120 : (ageMax - (ageMin || 0))) + (ageMin || 0);
+export function characterCreate({gender, partnerId, ageMin, ageMax}: { gender?: Character["gender"], partnerId?: Character["partnerId"], ageMin?: number, ageMax?: number }): Character {
+  const generatedGender = gender || (getRandom(2) === 0 ? "F" : "M");
 
+  return {
+    id: (world.nextId++).toString(),
+    children: [],
+    isDead: false,
+    parents: [],
+    gender: generatedGender,
+    name: humanNames[generatedGender][getRandom(humanNames[generatedGender].length)],
+    sname: humanSNames[getRandom(humanSNames.length)],
+    partnerId: partnerId,
+    age: getRandom(ageMax === undefined ? 120 : (ageMax - (ageMin || 0))) + (ageMin || 0),
+    log: []
+  }
+}
+
+export function characterMarry(self: Character, partner: Character) {
+  self.partnerId = partner.id;
+  partner.partnerId = self.id;
+
+  self.log.push({
+    year: world.year,
+    message: `married ${partner.name} ${partner.sname}`
+  });
+
+  if (partner.gender === "F") {
+    partner.sname = self.sname;
   }
 
-  merry(partner: Character) {
-    this.partnerId = partner.id;
-    partner.partnerId = this.id;
+  if (self.gender === "F") {
+    self.sname = partner.sname;
+  }
+}
 
-    if (partner.gender === "F") {
-      partner.sname = this.sname;
-    }
+export function characterAddChild(self: Character, maxAge ?: number) {
 
-    if (this.gender === "F") {
-      this.sname = partner.sname;
-    }
+  let ageYoungerParent = self.age;
+
+  if (self.partnerId) {
+    ageYoungerParent = Math.min(self.age, world.characters[self.partnerId].age)
   }
 
-  addChild(maxAge?: number) {
+  const child = characterCreate({ageMax: maxAge === undefined ? (ageYoungerParent - 17) : maxAge});
 
-    let ageYoungerParent = this.age;
+  self.children.push(child.id);
+  child.parents.push(self.id);
 
-    if (this.partnerId) {
-      ageYoungerParent = Math.min(this.age, world.characters[this.partnerId].age)
-    }
-
-    const child = new Character({ageMax: maxAge === undefined ? (ageYoungerParent - 17) : maxAge });
-
-    this.children.push(child.id);
-    child.parents.push(this.id);
-
-    if (this.partnerId) {
-      world.characters[this.partnerId].children.push(child.id);
-      child.parents.push(this.partnerId);
-      child.sname = world.characters[this.partnerId].sname
-    }
-
-    world.characters[child.id] = child;
-
-    return child;
+  if (self.partnerId) {
+    world.characters[self.partnerId].children.push(child.id);
+    child.parents.push(self.partnerId);
+    child.sname = world.characters[self.partnerId].sname
   }
+
+  world.characters[child.id] = child;
+
+  addToLog(self, `Got a child ${child.name}`);
+  if (self.partnerId) {
+    addToLog(world.characters[self.partnerId], `Got a child ${child.name}`);
+  }
+  addToLog(child, 'Was born');
+
+  return child;
+}
+
+export function addToLog(self: Character, message: string) {
+  self.log.push({
+    year: world.year,
+    message
+  });
 }

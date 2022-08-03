@@ -1,46 +1,24 @@
-import {WorldLocation} from "./worldLocation";
-import {Character} from "./character";
+import {worldLocationCreate, worldLocationGenerateCharacters, worldLocationTick} from "./worldLocation";
+import {world} from "./db";
 
-declare const global: {
-  world: World;
-};
+export function worldInit() {
+  const agnir = worldLocationCreate("Agnir");
+  world.locations[agnir.id] = agnir;
+  worldLocationGenerateCharacters(agnir);
 
-class World {
-  locations: {[name: string]: WorldLocation} = {};
-  characters: {[name: string]: Character} = {};
-  graveyard: WorldLocation | null = null;
+  const graveyard = worldLocationCreate("Graveyard");
+  world.locations[graveyard.id] = graveyard;
 
-  constructor() {
-  }
-
-  init() {
-    const agnir = new WorldLocation("Agnir");
-    this.locations[agnir.id] = agnir;
-    agnir.generateCharacters();
-
-    const graveyard = new WorldLocation("Graveyard");
-    this.locations[graveyard.id] = graveyard;
-
-    this.graveyard = graveyard;
-  }
-
-  tick() {
-    Object.values(this.locations).forEach(location => {
-      const result = location.tick();
-
-      result.deadCharacters.forEach((character) => {
-        this.graveyard?.characters.push(character);
-      });
-    })
-  }
+  world.graveyard = graveyard;
 }
 
-if (!global.world) {
-  global.world = new World();
+export function worldTick() {
+  Object.values(world.locations).forEach(location => {
+    const result = worldLocationTick(location);
 
-  setTimeout(() => {
-    global.world.init();
+    result.deadCharacters.forEach((character) => {
+      world.graveyard?.characters.push(character);
+    });
   });
+  world.year++;
 }
-
-export const world = global.world;

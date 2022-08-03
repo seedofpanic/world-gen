@@ -14,14 +14,22 @@ export function CharacterComponent({data}: CharacterComponentProps) {
     <div>Age: {character.age}</div>
     <div>Gender: {character.gender}</div>
     <div>Partner: {partner ? partner.name : "no"}</div>
-    <div>Parents: </div>
-    <ul>
-      {parents.map(parent => <li key={parent.id}>{parent.name}</li>)}
-    </ul>
-    <div>Children: </div>
-    <ul>
-      {children.map(child => <li key={child.id}>{child.name}</li>)}
-    </ul>
+    <div>Parents:</div>
+    <div>
+      <ul>
+        {parents.map(parent => <li key={parent.id}>{parent.name}</li>)}
+      </ul>
+    </div>
+    <div>Children:</div>
+    <div>
+      <ul>
+        {children.map(child => <li key={child.id}>{child.name}</li>)}
+      </ul>
+    </div>
+    <div>Log:</div>
+    <div>
+      {character.log?.map((event, index) => <div key={index}>{event.year} {event.message}</div>)}
+    </div>
   </>;
 }
 
